@@ -1,0 +1,12 @@
+{
+    "name": "dmitriy/telega",
+    "require": {
+        "telegram-bot/api": "^2.3"
+    },
+    "autoload": {
+        "files": [
+            "Bot.php",
+            "index.php"
+        ]
+    }
+}
