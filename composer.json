@@ -6,7 +6,8 @@
     "autoload": {
         "files": [
             "Bot.php",
-            "index.php"
+            "Parcer.php",
+            "ListCommands.php"
         ]
     }
 }
