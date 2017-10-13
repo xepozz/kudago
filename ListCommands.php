@@ -32,12 +32,6 @@ class ListCommands extends \app\Bot
     public static function getAvailableEvents()
     {
         return [
-            'onImg' => function($update){
-                $callback = $update->getCallbackQuery();
-                if (is_null($callback) || !strlen($callback->getData()))
-                    return false;
-                return true;
-            },
             'onEvent' => function($message){
                 return true; // когда тут true - команда проходит
             },
@@ -46,7 +40,6 @@ class ListCommands extends \app\Bot
     // список доступных для регистрации инлайнов (пока не работает)
     public static function getAvailableInlines() {
         return [
-            'iqEvents'
         ];
     }
 
@@ -66,15 +59,6 @@ class ListCommands extends \app\Bot
         if(key_exists('site_url', $event) && key_exists("short_title", $event))
             array_push($eventTitles, 'Сайт: <a href="' . $event['site_url'] . '">' . $event['short_title'] . '</a>');
         $buttons = [];
-        /*if(key_exists('results', $events))
-        {
-            $i = $offset;
-            $eventTitles = array_map(function($array) use (&$i)
-            {
-                $i++;
-                return $i . '. ' . $array['title'] . '';
-            }, $events['results']);
-        }*/
         $buttons[] = [
             'text' => "Назад",
             'callback_data' => 'events offset ' . (int)$offset . ' ' .$slug . ' ' . $count,

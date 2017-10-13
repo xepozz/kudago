@@ -13,21 +13,19 @@ use TelegramBot\Api\BotApi;
 
 class Bot
 {
-    private $config = [];
-    private $bot;
-    private $webHook;
-    private $configFile = 'config.json';
+    private $config = []; // config
+    private $bot; // instance of TelegramBot
+    private $debugging; // print information on page
+    private $configFile = 'config.json'; // path into config file
 
-    public function __construct()
+    public function __construct(int $debugging = 1)
     {
-//        var_dump(get_class_methods(__CLASS__));
         $this->loadConfig();
-//        var_dump($this);
         $this->bot = new Client($this->config->token);
         $this->setHook();
-        $bot = $this->bot;
-//        $this->registerCommands(["index"]);
+        $this->debugging = $debugging;
     }
+    //load config from $configFile
     private function loadConfig($file = null)
     {
         try {
@@ -40,11 +38,12 @@ class Bot
             $data = file_get_contents($this->configFile);
             $this->config = json_decode($data);
         }catch (\Exception $ex){
-            echo $ex->getMessage();
+            $this->debug($ex->getMessage());
             return 0;
         }
         return 1;
     }
+    //save config into $configFile
     private function saveConfig()
     {
         try {
@@ -56,19 +55,15 @@ class Bot
             $data = json_encode($this->config);
             file_put_contents($this->configFile, $data);
         }catch (\Exception $ex){
-            echo $ex->getMessage();
+            $this->debug($ex->getMessage());
             return 0;
         }
         return 1;
     }
-
+    //set WebHook
     private function setHook()
     {
         if(file_exists($this->configFile) && (!key_exists("hooked", $this->config) || $this->config->hooked == 0)){
-            /**
-             * файл registered.trigger будет создаваться после регистрации бота.
-             * если этого файла нет значит бот не зарегистрирован
-             */
             $page_url = "https://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]; // текущая страница
             $crt = new \CURLFile("ssl/bot.crt"); // самоподписный сертификат
             $result = $this->bot->setWebhook($page_url, $crt);
@@ -80,6 +75,7 @@ class Bot
         }
         return 0;
     }
+    //register commands
     public function registerCommands($class, $methods)
     {
         $bot = $this->bot;
@@ -91,12 +87,12 @@ class Bot
                     $class::$function($msg, $bot);
                 });
             else
-                echo "error: method " . $function . " not found in " . $class . "<br>";
+                $this->debug("error: method " . $function . " not found in " . $class);
 
-            echo "Command $command handled $class::$function(msg, bot)<br>";
+            $this->debug("Command $command handled $class::$function(msg, bot)");
         }
     }
-
+    //register events
     public function registerEvents($class, $methods)
     {
         $bot = $this->bot;
@@ -111,11 +107,12 @@ class Bot
                     $class::$event($update, $bot);
                 }, $checker);
             else
-                echo "error: method " . $event . " not found in " . $class . "<br>";
+                $this->debug("error: method " . $event . " not found in " . $class);
 
-            echo "Event $event handled $class::$event(update, bot)<br>";
+            $this->debug("Event $event handled $class::$event(update, bot)");
         }
     }
+    //register inlineQueries
     public function registerInlineQueries($class, $methods)
     {
         $bot = $this->bot;
@@ -126,11 +123,21 @@ class Bot
                     $class::$method($inlineQuery, $bot);
                 });
             else
-                echo "error: method " . $method . " not found in " . $class . "<br>";
+                $this->debug("error: method " . $method . " not found in " . $class);
 
-            echo "InlineQuery $method handled $class::$method(update, bot)<br>";
+            $this->debug("InlineQuery $method handled $class::$method(update, bot)");
         }
     }
+    //print function if $debugging is true
+    private function debug($text)
+    {
+        if($this->debugging){
+            var_dump($text);
+            echo '<br/>';
+        }
+        return false;
+    }
+    //alias for TelegramBot->run
     public function run()
     {
         return $this->bot->run();

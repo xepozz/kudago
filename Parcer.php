@@ -7,13 +7,13 @@
  */
 
 namespace app;
-define("SP", "/");
+define("SP", "/"); // define separator url
 
 class Parcer
 {
     public static $api = 'https://kudago.com/public-api/v1.3';
     public static $_template = 'api/method/?query';
-    public static function getEvent($id/*, $slug = null, $count = 5, $offset = null*/)
+    public static function getEvent($id)
     {
         $data = self::get('events/'.$id);
         return $data;
@@ -44,9 +44,7 @@ class Parcer
         $link = str_replace('api', self::$api, $link);
         $link = str_replace('method', $method, $link);
         $link = str_replace('query', $query, $link);
-//        echo $link;
         return $link;
-//        return self::$api . SP . $method . SP. $query;
     }
     private static function _buildQuery($query)
     {
